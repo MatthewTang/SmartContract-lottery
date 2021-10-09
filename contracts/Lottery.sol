@@ -24,6 +24,7 @@ contract Lottery is
     LOTTERY_STATE public lottery_state;
     uint256 public fee;
     bytes32 public keyhash;
+    event RequestedRandomness(bytes32 requestId);
 
     constructor(
         address _priceFeedAddress,
@@ -39,7 +40,7 @@ contract Lottery is
         keyhash = _keyhash;
     }
 
-    function entery() public payable {
+    function enter() public payable {
         // $50 minimum
         require(lottery_state == LOTTERY_STATE.OPEN);
         require(msg.value >= getEntranceFee(), "Not enough ETH");
@@ -79,6 +80,7 @@ contract Lottery is
 
         lottery_state = LOTTERY_STATE.CALCULATING_WINNER;
         bytes32 requestId = requestRandomness(keyhash, fee);
+        emit RequestedRandomness(requestId);
     }
 
     function fulfillRandomness(bytes32 _requestId, uint256 _randomness)

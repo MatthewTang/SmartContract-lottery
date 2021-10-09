@@ -6,6 +6,7 @@ from brownie import (
     VRFCoordinatorMock,
     LinkToken,
     Contract,
+    interface,
 )
 
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "ganache-local"]
@@ -65,7 +66,7 @@ def get_contract(contract_name):
 
 
 DECIMALS = 8
-INITIAL_VALUE = 200000000000
+INITIAL_VALUE = 200000000000  # 2000 USD
 
 
 def deploy_mocks(decimals=DECIMALS, initial_value=INITIAL_VALUE):
@@ -74,3 +75,16 @@ def deploy_mocks(decimals=DECIMALS, initial_value=INITIAL_VALUE):
     link_token = LinkToken.deploy({"from": account})
     VRFCoordinatorMock.deploy(link_token.address, {"from": account})
     print("Deployed")
+
+
+def fund_with_link(
+    contract_address, account=None, link_token=None, amount=100000000000000000
+):
+    account = account if account else get_account()
+    link_token = link_token if link_token else get_contract("link_token")
+    tx = link_token.transfer(contract_address, amount, {"from": account})
+    # link_token_contract = interface.LinkTokenInterface(link_token.address)
+    # tx = link_token_contract.transfer(contract_address, amount, {"from": account})
+    tx.wait(1)
+    print("Fund contract!")
+    return tx
